@@ -30,10 +30,20 @@ B    -4			//loop back up to compare again
 ADDI 19, 31, 21 //Imm, Source, Dest
 ADDI 54, 31, 22 //Imm, Source, Dest
 ADDI 80, 31, 23 //Imm, Source, Dest
-ADDI 13, 31, 23 //Imm, Source, Dest
+ADDI 13, 31, 24 //Imm, Source, Dest
 ADD 24, 23, 9 //2nd, 1st, Dest
 SUB 21, 22, 10 //2nd, 1st, Dest
 ADD 10, 9, 10 //2nd, 1st, Dest
+
+
+ADDI 54,31,22
+ADDI 80,31,23
+ADDI 13,31,24
+ADD 24,23,9
+SUB 21,22,10
+ADD 10,9,11
+
+
 
 //Formatted 2
 DMEM[0] = 10
@@ -42,7 +52,7 @@ ADD 31, 31, 21 //2nd, 1st, Dest
 LDUR 0, 21, 9 // address, base, dest
 LDUR 1, 21, 10 // address, base, dest
 ADD 10, 9,11  //2nd, 1st, Dest
-STUR 2, 21, 11 // address, base, dest
+STUR 2, 21, 11 // address, base, source
 
 //Formatted 3
 ADDI 0, 31, 21 //Imm, Source, Dest
