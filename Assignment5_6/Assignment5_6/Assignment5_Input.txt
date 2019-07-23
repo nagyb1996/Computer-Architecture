@@ -1,0 +1,55 @@
+//Example 1
+ADDI X21, XZR, #19
+ADDI X22, XZR, #54
+ADDI X23, XZR, #80
+ADDI X24, XZR, #13
+ADD  X9,  X23, X24
+SUB  X10, X22, X21
+ADD  X11, X9,  X10
+
+//Example 2
+DMEM[0] = 10, DMEM[1] = 13 //Set up data memory 
+ADD  X21, XZR, XZR	//X21 = 0 or the beginning of data memory
+LDUR X9,  [X21, #0]	//X9 = 10
+LDUR X10, [X21, #1]	//X10 = 13
+ADD  X11, X9,  X10
+STUR X11, [X21, #2]
+
+//Example 3
+ADDI X21, XZR, #0	//X21 = 0 (i = 0 for loop)
+ADDI X22, XZR, #100	//X22 = 100
+ADDI X23, XZR, #10	//X23 = 10
+SUBI X9,  X21, #4	//compare i with 4
+CBZ  X9, 4		//if i is 4 exit for loop
+SUB  X22, X22, X23	
+ADDI X21, X21, #1	//i++
+B    -4			//loop back up to compare again
+
+
+//Formatted 1
+ADDI 19, 31, 21 //Imm, Source, Dest
+ADDI 54, 31, 22 //Imm, Source, Dest
+ADDI 80, 31, 23 //Imm, Source, Dest
+ADDI 13, 31, 23 //Imm, Source, Dest
+ADD 24, 23, 9 //2nd, 1st, Dest
+SUB 21, 22, 10 //2nd, 1st, Dest
+ADD 10, 9, 10 //2nd, 1st, Dest
+
+//Formatted 2
+DMEM[0] = 10
+DMEM[1] = 13 
+ADD 31, 31, 21 //2nd, 1st, Dest
+LDUR 0, 21, 9 // address, base, dest
+LDUR 1, 21, 10 // address, base, dest
+ADD 10, 9,11  //2nd, 1st, Dest
+STUR 2, 21, 11 // address, base, dest
+
+//Formatted 3
+ADDI 0, 31, 21 //Imm, Source, Dest
+ADDI 100, 31, 22 //Imm, Source, Dest
+ADDI 10, 31, 23 //Imm, Source, Dest
+SUBI 4, 21, 21 //Imm, Source, Dest
+CBZ  X9, 4		//if i is 4 exit for loop
+SUB 23, 22, 22  //2nd, 1st, Dest
+ADDI 1, 21, 21 //Imm, Source, Dest
+B    -4			//loop back up to compare again

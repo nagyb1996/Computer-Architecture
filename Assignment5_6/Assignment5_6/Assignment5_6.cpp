@@ -12,11 +12,78 @@
 
 using namespace std;
 
+//vector of possible instruction types
+vector<string> instructionType = {"ADDI","ADD", "SUBI", "SUB", "DMEM", "LDUR", "STUR", "CBZ", "B"};
+
+vector<string> decodeInstruction (string instruction) {
+	// Find position of ':' using find() 
+	int space = instruction.find(" ");
+	int comma = instruction.find_first_of(",");
+	// Copy substring after pos 
+	string type = instruction.substr(0, space);
+	vector<string> decoded;
+	
+	// Add instruction type as first entry in decoded instruciton vector
+	for (int i = 0; i < instructionType.size(); i++) {
+		if (type.compare(instructionType[i]) == 0) {
+
+			decoded.push_back(instructionType[i]);
+			switch (i) {
+			case 0: // ADDI
+				string start = instruction.substr(space + 1, comma);
+				break;
+			case 1: // ADD
+				break;
+			case 2: // SUBI
+				break;
+			case 3: // SUB
+				break;
+			case 4: // DMEM
+				break;
+			case 5: // LDUR
+				break;
+			case 6: // STUR
+				break;
+			case 7: // CBZ
+				break;
+			case 8: // B
+				break;
+			}
+		}
+	}
+
+}
+
+
+void ALU() {
+	/*
+	
+	switch(instruction)
+	case ADD
+	case ADDI
+	case SUB
+	case SUBI
+	case DMEM
+	case LDUR
+	case STUR
+	case CBZ
+	case B
+	
+	
+	
+	*/
+
+}
+
+void simPrint() {
+
+}
+
 
 int main()
 {
 
-	// create register file
+	// create and initialize register file
 	int reg[32];
 	reg[0] = 0; // X0 Arguments/Results
 	reg[1] = 0; // X1 Arguments/Results
@@ -51,18 +118,30 @@ int main()
 	reg[30] = 0; // X30 (LR), Link Register (return address)
 	reg[31] = 0; // XZR Const 0
 
-	// format instructions into program storage
-
 	// create PC 
 	int PC = 0;
 	// initialize instruction memory
-	int mem[0x1000];
-	// load memory with all 0
-	for (int i = 0; i < 0x1000; i++) {
-		mem[i] = 0;
+	vector<string> instructionMem;
+	//create and intialize data memory
+	int dataMem[8] = { 0,0,0,0,0,0,0,0 };
+
+	// read instructions from file into instruction memory
+	ifstream input("input1.txt");
+	string data;
+	if (input.good())
+	{
+		while (getline(input, data)) //while there are lines to read, read them
+		{
+			instructionMem.push_back(data);		//store line
+		}
 	}
+	input.close();
+	printf("Simulation Begins \n");
 
-
-
+	//Fetch instruction
+	for (int i = 0; i < instructionMem.size; i++) {
+		string currentInstruction = instructionMem[i];
+		vector<string> decodedInstruction = decodeInstruction(currentInstruction);
+	}
 }
 

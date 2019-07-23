@@ -163,7 +163,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\..\OneDrive - Wentworth Institute of Technology\Senior 2\Computer Architecture\Homework\Assignment 5 &amp; 6\Assignment5_Input.txt" />
+    <Text Include="Assignment5_Input.txt" />
+    <Text Include="input1.txt" />
+    <Text Include="input2.txt" />
+    <Text Include="input3.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

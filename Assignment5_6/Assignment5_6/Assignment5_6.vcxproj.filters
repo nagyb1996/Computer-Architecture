@@ -28,7 +28,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\..\..\..\OneDrive - Wentworth Institute of Technology\Senior 2\Computer Architecture\Homework\Assignment 5 &amp; 6\Assignment5_Input.txt">
+    <Text Include="Assignment5_Input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="input1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="input2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="input3.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
