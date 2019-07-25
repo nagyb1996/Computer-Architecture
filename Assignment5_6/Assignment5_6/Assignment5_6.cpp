@@ -16,9 +16,8 @@ using namespace std;
 int reg[32];
 //create data memory
 int dataMem[8];
-// create PC, NPC, and branch
+// create PC and branch
 int PC = 0;
-int NPC = 0;
 int branch = 0;
 // create instruction memory, decoded instruction and current instruction
 vector<string> instructionMem;
@@ -110,7 +109,7 @@ vector<string> decodeInstruction (string instruction) {
 			else if (i == 4) { // If it is DMEM
 				decoded.push_back(decoded[1]); // location in data memory
 				decoded.push_back(decoded[2]); // value to put in data memory
-				decoded.insert(decoded.begin(), "P");
+				decoded.insert(decoded.begin(), "P"); // P for psuedo
 			}
 			else if (i == 5 || i == 6) { // if it is an D type
 				decoded.push_back(decoded[1]); // address
@@ -132,7 +131,7 @@ vector<string> decodeInstruction (string instruction) {
 	return decoded; // return the decoded instruction
 }
 
-
+// Method simulates ALU
 int ALU(vector<string> instructionToExecute) {
 	string typeOfInstruction = instructionToExecute[0]; // type of instuction
 	string specificInstruction = instructionToExecute[1]; // specific instruction
@@ -214,22 +213,42 @@ void reset() {
 	for (int j = 0; j < 8; j++) {
 		dataMem[j] = 0;
 	}
+	// reset PC, branch, decoded and current instructions
 	PC = 0;
-	NPC = 0;
 	branch = 0;
 	instructionMem.clear();
 	decodedInstruction.clear();
 	currentInstruction.clear();
 }
 
+// print instruction memory, values in the register files, and data memory
+void print() {
+	
+	cout  << "\t" << "Instruction Memory:" << "\n";
+	if (instructionMem.size() == 0)
+		cout << "\t" << "\t" << "(null)" << "\n";
+	for (int i = 0; i < instructionMem.size(); i++) { //print instruction memory
+		cout << "\t" << "\t" << "Instruction Memory[" << i << "] = " << instructionMem[i] << "\n";
+	}
+	cout << "\t" << "Register Files:" << "\n";
+	for (int i = 0; i < 32; i++) { //print register files
+		cout << "\t" << "\t" << "Register[" << i << "] = " << reg[i] << "\n";
+	}
+	cout << "\t" << "Data Memory:" << "\n";
+	for (int i = 0; i < 8; i++) { //print data memory
+		cout << "\t" << "\t" << "Data Memory[" << i << "] = " << dataMem[i] << "\n";
+	}
 
+}
+
+// Drives simulation
 int main()
 {
 	for (int i = 0; i < 3; i++) {
+		// print instruction memory, values in the register files, and data memory before simulation 
+		cout << "\n" << "Before Input File: " << i + 1 << "\n";
+		print();
 		// read instructions from file into instruction memory
-		printf("Simulation begins: \n");
-		printf("Reading Input: ");
-		cout << i + 1 << "\n";
 		if (i == 0) {
 			ifstream input("input1.txt");
 			string data; // hold the read data
@@ -263,38 +282,31 @@ int main()
 			}
 			input.close();
 		}
-
 		//While there are instructions to process
 		while (PC < instructionMem.size()) {
 			//get the next instruciton
 			currentInstruction = instructionMem[PC];
-			// Increment the PC and store the value in NPC
-			//NPC = PC++;
 			//decode the instruction and read registers
 			decodedInstruction = decodeInstruction(currentInstruction);
-			//ALU performs the operation
+			//ALU performs the operation, returns an int value branch
 			branch = ALU(decodedInstruction);
-			//memory access/ branch completion
-			//write back
+			// if branch is negative, add to current PC to jump back branch number of lines
 			if (branch < 0) {
 				PC = PC + branch;
 				//PC++;
 			}
+			// if branch is positive, subtract from the current PC to jump forward branch number of lines
 			else if (branch > 0) {
 				PC = PC - branch;
 				PC--;
 			}
+			// if branch == 0, continue to the next instruction
 			else if (branch == 0)
 				PC++;
 		}
-		printf("Simulation results: \n");
-		if (i == 0)
-			cout << reg[11] << "\n";
-		else if (i == 1)
-			cout << dataMem[2] << "\n";
-		else
-			cout << reg[22] << "\n";
-
+		// print instruction memory, values in the register files, and data memory after simulation 
+		cout << "\n" << "After Input File: " << i + 1 << "\n" ;
+		print();
 		reset();
 		
 	}
