@@ -15,6 +15,16 @@ LDUR X10, [X21, #1]	//X10 = 13
 ADD  X11, X9,  X10
 STUR X11, [X21, #2]
 
+//Formatted 2
+DMEM[0] = 10
+DMEM[1] = 13 
+ADD 31, 31, 21 //2nd, 1st, Dest
+LDUR 0, 21, 9 // address, base, dest
+LDUR 1, 21, 10 // address, base, dest
+ADD 10, 9,11  //2nd, 1st, Dest
+STUR 2, 21, 11 // address, base, source
+
+
 //Example 3
 ADDI X21, XZR, #0	//X21 = 0 (i = 0 for loop)
 ADDI X22, XZR, #100	//X22 = 100
@@ -45,14 +55,6 @@ ADD 10,9,11
 
 
 
-//Formatted 2
-DMEM[0] = 10
-DMEM[1] = 13 
-ADD 31, 31, 21 //2nd, 1st, Dest
-LDUR 0, 21, 9 // address, base, dest
-LDUR 1, 21, 10 // address, base, dest
-ADD 10, 9,11  //2nd, 1st, Dest
-STUR 2, 21, 11 // address, base, source
 
 //Formatted 3
 ADDI 0, 31, 21 //Imm, Source, Dest

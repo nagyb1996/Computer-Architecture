@@ -12,9 +12,18 @@
 
 using namespace std;
 
-
-// create and initialize register file
+// create register file
 int reg[32];
+//create data memory
+int dataMem[8];
+// create PC, NPC, and branch
+int PC = 0;
+int NPC = 0;
+int branch = 0;
+// create instruction memory, decoded instruction and current instruction
+vector<string> instructionMem;
+vector<string> decodedInstruction;
+string currentInstruction;
 
 
 //vector of possible instruction types
@@ -39,14 +48,29 @@ vector<string> split(string content, string delim) {
 
 // returns value of register specified in passed arguement
 string readReg(string regToRead) {
-	int regInt = stoi(regToRead);
-	int value = reg[regInt];
-	string regString = to_string(value);
+	int regInt = stoi(regToRead); // int value of reg to read
+	int value = reg[regInt]; // value in reg
+	string regString = to_string(value); // string of value in reg
 	return regString;
 }
 
+// returns value of data memory specified in passed arguement
+string readDataMem(string memToRead) {
+	int memInt = stoi(memToRead);  // int value of dataMem to read
+	int value = dataMem[memInt]; // value in dataMem
+	string dataString = to_string(value); // string of value in dataMem
+	return dataString;
+}
+
+
+// writes value to registers
 void writeReg(int regID, int value) {
-	reg[regID] = value;
+	reg[regID] = value; // update value in reg with provided value
+}
+
+// writes values to data memory
+void writeDataMem(int memID, int value) {
+	dataMem[memID] = value; // update value in dataMem with provided value
 }
 
 
@@ -56,15 +80,14 @@ vector<string> decodeInstruction (string instruction) {
 	int space = instruction.find(" ");
 	// Copy the substring after instruction
 	string type = instruction.substr(0, space);
-	vector<string> decoded;
-	string rawString;
-	string getValue;
-	vector<string> seperated;
+	vector<string> decoded; // decoded instruction to return
+	string rawString; // variable to manipulate string
+	string getValue; // variable to manipulate string
+	vector<string> seperated; // variable to manipulate string
 	
 	// Add instruction type as first entry in decoded instruciton vector
 	for (int i = 0; i < instructionType.size(); i++) {
 		if (type.compare(instructionType[i]) == 0) {
-
 			// put in the instruction and registers
 			decoded.push_back(instructionType[i]);
 			rawString = instruction.substr(space + 1);
@@ -84,11 +107,16 @@ vector<string> decodeInstruction (string instruction) {
 				decoded.push_back(readReg(decoded[3])); // dest value
 				decoded.insert(decoded.begin(), "R");
 			}
-			//@TODO
+			else if (i == 4) { // If it is DMEM
+				decoded.push_back(decoded[1]); // location in data memory
+				decoded.push_back(decoded[2]); // value to put in data memory
+				decoded.insert(decoded.begin(), "P");
+			}
 			else if (i == 5 || i == 6) { // if it is an D type
 				decoded.push_back(decoded[1]); // address
 				decoded.push_back(readReg(decoded[2])); // base
-				decoded.push_back(readReg(decoded[3])); // dest / source
+				decoded.push_back(readReg(decoded[3])); // value in dest / source
+				decoded.push_back(readDataMem(decoded[1])); // value in address
 				decoded.insert(decoded.begin(), "D");
 			}
 			else if (i == 7) { // if it is an C type
@@ -101,129 +129,140 @@ vector<string> decodeInstruction (string instruction) {
 
 		}
 	}
-
 	return decoded; // return the decoded instruction
 }
 
 
 int ALU(vector<string> instructionToExecute) {
-	string typeOfInstruction = instructionToExecute[0];
-	string specificInstruction = instructionToExecute[1];
-	int result = 0;
-	int destination = 0;
-	int pcAddress = 0;
-	bool write = true;
+	string typeOfInstruction = instructionToExecute[0]; // type of instuction
+	string specificInstruction = instructionToExecute[1]; // specific instruction
+	int result = 0; // hold result to write
+	int destination = 0; // desination to write result
+	int pcAddress = 0; // pcAddress to branch to if required
+	bool writeToReg = true; // if we need to write to registers
 
 	// R type instructions
 	if (typeOfInstruction.compare("R") == 0) {
-		int secondValue = stoi(instructionToExecute[5]);
-		int firstValue = stoi(instructionToExecute[6]);
-		destination = stoi(instructionToExecute[4]);
+		int secondValue = stoi(instructionToExecute[5]); //get int value in second register
+		int firstValue = stoi(instructionToExecute[6]); //get int value in first register
+		destination = stoi(instructionToExecute[4]); // get the destination
 		if (specificInstruction.compare(instructionType[1]) == 0) // if add
-			result = firstValue + secondValue;
+			result = firstValue + secondValue; // add the values
 		else if (specificInstruction.compare(instructionType[3]) == 0) // if sub
-			result = firstValue - secondValue;			
+			result = firstValue - secondValue; // subtract the values	
 	}
 	// I type instructions
 	else if (typeOfInstruction.compare("I") == 0) {
-		int immediate = stoi(instructionToExecute[2]);
-		int source = stoi(instructionToExecute[5]);
-		destination = stoi(instructionToExecute[4]);
+		int immediate = stoi(instructionToExecute[2]); // get the immediate value
+		int source = stoi(instructionToExecute[5]); // get the source value
+		destination = stoi(instructionToExecute[4]); // get the destination
 		if (specificInstruction.compare(instructionType[0]) == 0) // if addi
-			result = immediate + source;
+			result = immediate + source; // add immediate and source
 		else if (specificInstruction.compare(instructionType[2]) == 0) // if subi
-			result = source - immediate;
+			result = source - immediate; // sutract immediate from source
 	}
 	// D type instructions
 	else if (typeOfInstruction.compare("D") == 0) {
-		int immediate = stoi(instructionToExecute[2]);
+		if (specificInstruction.compare(instructionType[5]) == 0) {// if ldur
+			result = stoi(instructionToExecute[8]); //value in address to load
+			destination = stoi(instructionToExecute[4]); // register to store data memory value in
+		}
+		else if (specificInstruction.compare(instructionType[6]) == 0) { // if stur
+			writeToReg = false; // don't write to registers
+			result = stoi(instructionToExecute[7]); // value in register to store
+			destination = stoi(instructionToExecute[5]); // address in data memory to store value in
+			writeDataMem(destination, result); // write to dataMemory instead
+		}
+			
 	}
 	// C type instructions
 	else if (typeOfInstruction.compare("C") == 0) {
 		if (specificInstruction.compare(instructionType[7]) == 0) { // if CBZ
-			int value = stoi(instructionToExecute[4]);
-			if(value == 0)
-				pcAddress = stoi(instructionToExecute[3]);
+			int value = stoi(instructionToExecute[4]); // get the value to check
+			if(value == 0) // if it equals zero
+				pcAddress = stoi(instructionToExecute[3]); // update the pcAddress
 		}
-		write = false;
+		writeToReg = false; // don't write to registers
 	}
 	// B type instructions
 	else if (typeOfInstruction.compare("B") == 0) {
-		write = false;
-		pcAddress = stoi(instructionToExecute[2]);
+		writeToReg = false; // don't write to registers
+		pcAddress = stoi(instructionToExecute[2]); // update the pcAddress
 	}
 
-	if(write)
-		writeReg(destination, result);
+	// P type instructions
+	else if (typeOfInstruction.compare("P") == 0) {
+		writeToReg = false; // don't write to registers
+		destination = stoi(instructionToExecute[2]); // which dataMemory address to write to
+		result = stoi(instructionToExecute[3]); // value to write to dataMemory
+		writeDataMem(destination, result); // write to dataMemory instead
+	}
 
-	return pcAddress;
+	if(writeToReg) // if we need to write to dataMemory
+		writeReg(destination, result); // write to dataMemory
+
+	return pcAddress; // return pcAddress to check if we should branch
 }
 
 
+// reset all necessary values
+void reset() {
+	// initialize reg and dataMem with 0's
+	for (int i = 0; i < 32; i++) {
+		reg[i] = 0;
+	}
+	for (int j = 0; j < 8; j++) {
+		dataMem[j] = 0;
+	}
+	PC = 0;
+	NPC = 0;
+	branch = 0;
+	instructionMem.clear();
+	decodedInstruction.clear();
+	currentInstruction.clear();
+}
 
 
 int main()
 {
-
-		reg[0] = 0; // X0 Arguments/Results
-		reg[1] = 0; // X1 Arguments/Results
-		reg[2] = 0; // X2 Arguments/Results
-		reg[3] = 0; // X3 Arguments/Results
-		reg[4] = 0; // X4 Arguments/Results
-		reg[5] = 0; // X5 Arguments/Results
-		reg[6] = 0; // X6 Arguments/Results
-		reg[7] = 0; // X7 Arguments/Results
-		reg[8] = 0; // X8 indirect result location register
-		reg[9] = 0; // X9 Temp
-		reg[10] = 0; // X10 Temp
-		reg[11] = 0; // X11 Temp
-		reg[12] = 0; // X12 Temp
-		reg[13] = 0; // X13 Temp
-		reg[14] = 0; // X14 Temp
-		reg[15] = 0; // X15 Temp
-		reg[16] = 0; // X16 Temp
-		reg[17] = 0; // X17 Temp
-		reg[18] = 0; // X18 Temp
-		reg[19] = 0; // X19 Saved
-		reg[20] = 0; // X20 Saved
-		reg[21] = 0; // X21 Saved
-		reg[22] = 0; // X22 Saved
-		reg[23] = 0; // X23 Saved
-		reg[24] = 0; // X24 Saved
-		reg[25] = 0; // X25 Saved
-		reg[26] = 0; // X26 Saved
-		reg[27] = 0; // X27 Saved
-		reg[28] = 0; // X28 (SP), Stack Pointer
-		reg[29] = 0; // X29 (FP), Frame Pointer
-		reg[30] = 0; // X30 (LR), Link Register (return address)
-		reg[31] = 0; // XZR Const 0
-
-		// create PC and NPC 
-		int PC = 0;
-		int NPC = 0;
-		// initialize instruction memory
-		vector<string> instructionMem;
-		//create and intialize data memory
-		int dataMem[8] = { 0,0,0,0,0,0,0,0 };
-
+	for (int i = 0; i < 3; i++) {
 		// read instructions from file into instruction memory
-		//ifstream input("input1.txt");
-		ifstream input("input3.txt");
-		
-		string data;
-		if (input.good())
-		{
-			while (getline(input, data)) //while there are lines to read, read them
-			{
-				instructionMem.push_back(data);		//store line
+		printf("Simulation begins: \n");
+		printf("Reading Input: ");
+		cout << i + 1 << "\n";
+		if (i == 0) {
+			ifstream input("input1.txt");
+			string data; // hold the read data
+			if (input.good()) {
+				while (getline(input, data)) //while there are lines to read, read them
+				{
+					instructionMem.push_back(data);		//store line
+				}
 			}
+			input.close();
 		}
-		input.close();
-		printf("Simulation Begins \n");
-
-		vector<string> decodedInstruction;
-		string currentInstruction;
-		int branch = 0;
+		else if (i == 1) {
+			ifstream input("input2.txt");
+			string data; // hold the read data
+			if (input.good()) {
+				while (getline(input, data)) //while there are lines to read, read them
+				{
+					instructionMem.push_back(data);		//store line
+				}
+			}
+			input.close();
+		}
+		else {
+			ifstream input("input3.txt");
+			string data; // hold the read data
+			if (input.good()) {
+				while (getline(input, data)) //while there are lines to read, read them
+				{
+					instructionMem.push_back(data);		//store line
+				}
+			}
+			input.close();
+		}
 
 		//While there are instructions to process
 		while (PC < instructionMem.size()) {
@@ -248,11 +287,16 @@ int main()
 			else if (branch == 0)
 				PC++;
 		}
+		printf("Simulation results: \n");
+		if (i == 0)
+			cout << reg[11] << "\n";
+		else if (i == 1)
+			cout << dataMem[2] << "\n";
+		else
+			cout << reg[22] << "\n";
 
+		reset();
 		
-			printf("Simulation results: \n");
-			//cout << reg[11];
-			cout << reg[22];
-	
+	}
 }
 
