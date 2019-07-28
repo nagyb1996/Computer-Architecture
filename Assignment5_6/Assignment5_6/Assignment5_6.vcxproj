@@ -163,7 +163,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Assignment5_Input.txt" />
+    <Text Include="Assignment5_6_Input.txt" />
     <Text Include="input1.txt" />
     <Text Include="input2.txt" />
     <Text Include="input3.txt" />

@@ -19,11 +19,16 @@ int dataMem[8];
 // create PC, cycles, and branch
 int PC = 0;
 int branch = 0;
-int cycles = 0;
+int cycles = 3; //  first instruction always takes 3 cycles to fetch, decode and execute
 // create instruction memory, decoded instruction and current instruction
 vector<string> instructionMem;
 vector<string> decodedInstruction;
+vector<string> decodedNextInstruction;
+vector<string> decodedPreviousInstruction;
 string currentInstruction;
+string previousInstruction;
+string nextInstruction;
+bool previousBubble = false; // track if there was a bubble in previous execution
 
 
 //vector of possible instruction types
@@ -134,7 +139,6 @@ vector<string> decodeInstruction (string instruction) {
 
 // Method simulates ALU
 int ALU(vector<string> instructionToExecute) {
-	cycles++;
 	string typeOfInstruction = instructionToExecute[0]; // type of instuction
 	string specificInstruction = instructionToExecute[1]; // specific instruction
 	int result = 0; // hold result to write
@@ -199,14 +203,63 @@ int ALU(vector<string> instructionToExecute) {
 		writeDataMem(destination, result); // write to dataMemory instead
 	}
 
+	if (writeToReg) { // if we need to write to dataMemory
+		writeReg(destination, result);
+	} // write to dataMemory
 	cycles++;
-
-	if(writeToReg) // if we need to write to dataMemory
-		writeReg(destination, result); // write to dataMemory
-
-	cycles++;
-
 	return pcAddress; // return pcAddress to check if we should branch
+}
+
+bool checkHazards(vector<string> current, vector<string> next) {
+	string currentType = current[0];
+	string nextType = next[0];
+	bool bubble = false;
+
+	if (currentType.compare("I") == 0 || currentType.compare("R") == 0) {
+		if (nextType.compare("I") == 0 || nextType.compare("R") == 0) {
+			//if (current[4].compare(next[2]) == 0 || current[4].compare(next[3]) == 0)
+				//cout << "Forwarding @ instruction: " << PC + 1;
+		}
+	}
+
+	if (currentType.compare("D") == 0) {
+		if (nextType.compare("I") == 0 || nextType.compare("R") == 0) {
+			if (current[4].compare(next[2]) == 0 || current[4].compare(next[3]) == 0) {
+				//cout << "Forwarding @ instruction: " << PC + 1;
+				bubble = true;
+			}
+		}
+	}
+
+	if (currentType.compare("I") == 0 || currentType.compare("R") == 0) {
+		if (nextType.compare("D") == 0) {
+			if (current[4].compare(next[3]) == 0 || current[4].compare(next[4]) == 0) {
+				//cout << "Forwarding @ instruction: " << PC + 1;
+				//if (!previousBubble)
+					//bubble = true;
+			}
+				
+		}
+	}
+
+	if (currentType.compare("I") == 0 || currentType.compare("R") == 0) {
+		if (nextType.compare("C") == 0) {
+				//cout << "Forwarding @ instruction: " << PC + 1;
+		}
+	}
+
+	if (PC > 1) {
+		string previousType = decodedPreviousInstruction[0];
+		if (previousType.compare("C") == 0 || previousType.compare("B") == 0) {
+			bubble = true;
+		}
+
+	}
+
+
+
+
+	return bubble;
 }
 
 
@@ -222,10 +275,13 @@ void reset() {
 	// reset PC, branch, cycles, decoded and current instructions
 	PC = 0;
 	branch = 0;
-	cycles = 0;
+	cycles = 3;
+	previousBubble = false;
 	instructionMem.clear();
 	decodedInstruction.clear();
 	currentInstruction.clear();
+	nextInstruction.clear();
+	decodedNextInstruction.clear();
 }
 
 // print instruction memory, values in the register files, and data memory
@@ -251,10 +307,11 @@ void print() {
 // Drives simulation
 int main()
 {
+	// (int i = 0; i < 3; i++)
 	for (int i = 0; i < 3; i++) {
 		// print instruction memory, values in the register files, and data memory before simulation 
-		cout << "\n" << "Before Input File: " << i + 1 << "\n";
-		print();
+		//cout << "\n" << "Before Input File: " << i + 1 << "\n";
+		//print();
 		// read instructions from file into instruction memory
 		if (i == 0) {
 			ifstream input("input1.txt");
@@ -289,16 +346,29 @@ int main()
 			}
 			input.close();
 		}
+		int count = 1;
 		//While there are instructions to process
 		while (PC < instructionMem.size()) {
 			//get the next instruciton
 			currentInstruction = instructionMem[PC];
-			cycles++;
+			if (PC + 1 < instructionMem.size())
+				nextInstruction = instructionMem[PC + 1];
 			//decode the instruction and read registers
 			decodedInstruction = decodeInstruction(currentInstruction);
-			cycles++;
+			if (PC + 1 < instructionMem.size()) {
+				decodedNextInstruction = decodeInstruction(nextInstruction);
+				if (checkHazards(decodedInstruction, decodedNextInstruction)) {
+					previousBubble = true;
+					cycles++;
+				}
+				else {
+					previousBubble = false;
+				}
+			}
 			//ALU performs the operation, returns an int value branch
 			branch = ALU(decodedInstruction);
+			cout << "After instruction " << count << " Cycle count = " << cycles << "\n";
+			count++;
 			// if branch is negative, add to current PC to jump back branch number of lines
 			if (branch < 0) {
 				PC = PC + branch;
@@ -312,10 +382,14 @@ int main()
 			// if branch == 0, continue to the next instruction
 			else if (branch == 0)
 				PC++;
+
+			previousInstruction = currentInstruction;
+			decodedPreviousInstruction = decodeInstruction(previousInstruction);
 		}
 		// print instruction memory, values in the register files, and data memory after simulation 
-		cout << "\n" << "After Input File: " << i + 1 << "\n" ;
-		print();
+		//cout << "\n" << "After Input File: " << i + 1 << "\n" ;
+		//print();
+		cout << "Total Cycles = " << cycles << "\n";
 		reset();
 		
 	}

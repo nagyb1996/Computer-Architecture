@@ -8,10 +8,11 @@ SUB  X10, X22, X21
 ADD  X11, X9,  X10
 
 //Example 2
-DMEM[0] = 10, DMEM[1] = 13 //Set up data memory 
-ADD  X21, XZR, XZR	//X21 = 0 or the beginning of data memory
-LDUR X9,  [X21, #0]	//X9 = 10
-LDUR X10, [X21, #1]	//X10 = 13
+DMEM[0] = 10
+DMEM[1] = 13
+ADD  X21, XZR, XZR
+LDUR X9,  [X21, #0]
+LDUR X10, [X21, #1]
 ADD  X11, X9,  X10
 STUR X11, [X21, #2]
 
@@ -26,14 +27,14 @@ STUR 2, 21, 11 // address, base, source
 
 
 //Example 3
-ADDI X21, XZR, #0	//X21 = 0 (i = 0 for loop)
-ADDI X22, XZR, #100	//X22 = 100
-ADDI X23, XZR, #10	//X23 = 10
-SUBI X9,  X21, #4	//compare i with 4
-CBZ  X9, 4		//if i is 4 exit for loop
+ADDI X21, XZR, #0
+ADDI X22, XZR, #100
+ADDI X23, XZR, #10
+SUBI X9,  X21, #4
+CBZ  X9, 4
 SUB  X22, X22, X23	
-ADDI X21, X21, #1	//i++
-B    -4			//loop back up to compare again
+ADDI X21, X21, #1
+B    -4
 
 
 //Formatted 1
