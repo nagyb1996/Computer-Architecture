@@ -16,9 +16,10 @@ using namespace std;
 int reg[32];
 //create data memory
 int dataMem[8];
-// create PC and branch
+// create PC, cycles, and branch
 int PC = 0;
 int branch = 0;
+int cycles = 0;
 // create instruction memory, decoded instruction and current instruction
 vector<string> instructionMem;
 vector<string> decodedInstruction;
@@ -133,6 +134,7 @@ vector<string> decodeInstruction (string instruction) {
 
 // Method simulates ALU
 int ALU(vector<string> instructionToExecute) {
+	cycles++;
 	string typeOfInstruction = instructionToExecute[0]; // type of instuction
 	string specificInstruction = instructionToExecute[1]; // specific instruction
 	int result = 0; // hold result to write
@@ -197,8 +199,12 @@ int ALU(vector<string> instructionToExecute) {
 		writeDataMem(destination, result); // write to dataMemory instead
 	}
 
+	cycles++;
+
 	if(writeToReg) // if we need to write to dataMemory
 		writeReg(destination, result); // write to dataMemory
+
+	cycles++;
 
 	return pcAddress; // return pcAddress to check if we should branch
 }
@@ -213,9 +219,10 @@ void reset() {
 	for (int j = 0; j < 8; j++) {
 		dataMem[j] = 0;
 	}
-	// reset PC, branch, decoded and current instructions
+	// reset PC, branch, cycles, decoded and current instructions
 	PC = 0;
 	branch = 0;
+	cycles = 0;
 	instructionMem.clear();
 	decodedInstruction.clear();
 	currentInstruction.clear();
@@ -286,8 +293,10 @@ int main()
 		while (PC < instructionMem.size()) {
 			//get the next instruciton
 			currentInstruction = instructionMem[PC];
+			cycles++;
 			//decode the instruction and read registers
 			decodedInstruction = decodeInstruction(currentInstruction);
+			cycles++;
 			//ALU performs the operation, returns an int value branch
 			branch = ALU(decodedInstruction);
 			// if branch is negative, add to current PC to jump back branch number of lines
