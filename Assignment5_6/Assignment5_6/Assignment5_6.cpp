@@ -9,6 +9,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <iomanip>
 
 using namespace std;
 
@@ -184,8 +185,10 @@ int ALU(vector<string> instructionToExecute) {
 	else if (typeOfInstruction.compare("C") == 0) {
 		if (specificInstruction.compare(instructionType[7]) == 0) { // if CBZ
 			int value = stoi(instructionToExecute[4]); // get the value to check
-			if(value == 0) // if it equals zero
+			if (value == 0) { // if it equals zero
 				pcAddress = stoi(instructionToExecute[3]); // update the pcAddress
+				cycles--;
+			}
 		}
 		writeToReg = false; // don't write to registers
 	}
@@ -248,13 +251,21 @@ bool checkHazards(vector<string> current, vector<string> next) {
 		}
 	}
 
+	if (previousBubble) {
+		cycles++;
+		previousBubble = false;
+	}
+
 	if (PC > 1) {
 		string previousType = decodedPreviousInstruction[0];
 		if (previousType.compare("C") == 0 || previousType.compare("B") == 0) {
 			bubble = true;
+			previousBubble = true;
 		}
 
 	}
+
+
 
 
 
@@ -358,16 +369,12 @@ int main()
 			if (PC + 1 < instructionMem.size()) {
 				decodedNextInstruction = decodeInstruction(nextInstruction);
 				if (checkHazards(decodedInstruction, decodedNextInstruction)) {
-					previousBubble = true;
 					cycles++;
 				}
-				else {
-					previousBubble = false;
-				}
+
 			}
 			//ALU performs the operation, returns an int value branch
 			branch = ALU(decodedInstruction);
-			cout << "After instruction " << count << " Cycle count = " << cycles << "\n";
 			count++;
 			// if branch is negative, add to current PC to jump back branch number of lines
 			if (branch < 0) {
@@ -387,9 +394,10 @@ int main()
 			decodedPreviousInstruction = decodeInstruction(previousInstruction);
 		}
 		// print instruction memory, values in the register files, and data memory after simulation 
-		//cout << "\n" << "After Input File: " << i + 1 << "\n" ;
-		//print();
-		cout << "Total Cycles = " << cycles << "\n";
+		cout << "\t" << "\n" << "After Input File: " << i + 1 << "\n";
+		float CPI = ((float)cycles / (float)instructionMem.size());
+		cout << "CPI =  " << cycles << " / " << instructionMem.size() << " = " << fixed << setprecision(2) << CPI << "\n";
+		print();
 		reset();
 		
 	}
