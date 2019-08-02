@@ -1,4 +1,4 @@
 ﻿  Assignment5_6.cpp
-c:\users\nagyb\documents\git_projects\computer-architecture\assignment5_6\assignment5_6\assignment5_6.cpp(45): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-c:\users\nagyb\documents\git_projects\computer-architecture\assignment5_6\assignment5_6\assignment5_6.cpp(86): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  Assignment5_6.vcxproj -> C:\Users\nagyb\Documents\Git_Projects\Computer-Architecture\Assignment5_6\x64\Debug\Assignment5_6.exe
+c:\users\brody\documents\git_projects\computer-architecture\assignment5_6\assignment5_6\assignment5_6.cpp(45): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\brody\documents\git_projects\computer-architecture\assignment5_6\assignment5_6\assignment5_6.cpp(86): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Assignment5_6.vcxproj -> C:\Users\Brody\Documents\Git_Projects\Computer-Architecture\Assignment5_6\x64\Debug\Assignment5_6.exe

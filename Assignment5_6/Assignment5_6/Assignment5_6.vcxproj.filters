@@ -37,7 +37,19 @@
     <Text Include="input3.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="Assignment5_6_Input.txt">
+    <Text Include="Assignment5_Input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="Assignment6_Input.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="input5.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="input7.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="input8.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

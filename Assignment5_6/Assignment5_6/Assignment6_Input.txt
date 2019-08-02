@@ -1,0 +1,32 @@
+Example 5 
+ADD X0, X1, X2 
+SUB X12, X0, X11 
+ADD X21, X0, X19 
+
+Formatted 5
+ADD 2, 1, 0 //2nd, 1st, Dest
+ADD 11, 0, 12 //2nd, 1st, Dest
+ADD 19, 0, 21 //2nd, 1st, Dest
+
+Example 7 
+LDUR X0, [X9, #8] 
+STUR X0, [X21, #0] 
+
+Formatted 7
+LDUR 8, 9, 0 // address, base, dest
+STUR 0, 21, 0 // address, base, source
+
+
+Example 8 
+ADD X0, X1, X2 
+SUB X12, X0, X11 
+ADD X21, X19, X0 
+ORR X3, X0, X4 
+STUR X5,[X0, #8] 
+
+Formatted 8
+ADD 2, 1, 0 //2nd, 1st, Dest
+ADD 11, 0, 12 //2nd, 1st, Dest
+ADD 0, 19, 21 //2nd, 1st, Dest
+ORR 4, 0, 3 //2nd, 1st, Dest
+STUR 8, 0, 5 // address, base, source
