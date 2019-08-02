@@ -224,16 +224,16 @@ bool checkHazards(vector<string> current, vector<string> next) {
 
 	if (currentType.compare("I") == 0 || currentType.compare("R") == 0) {
 		if (nextType.compare("I") == 0 || nextType.compare("R") == 0) {
-			//if (current[4].compare(next[2]) == 0 || current[4].compare(next[3]) == 0)
-				//cout << "Forwarding @ instruction: " << PC + 1;
+			if (current[4].compare(next[2]) == 0 || current[4].compare(next[3]) == 0)
+				cout  << "\t" << "Forwarding @ instruction: " << PC + 1 << "\n";
 		}
 	}
 
 	if (currentType.compare("D") == 0) {
-		if (nextType.compare("I") == 0 || nextType.compare("R") == 0) {
+		if (nextType.compare("D") == 0 || nextType.compare("R") == 0 || nextType.compare("I") == 0) {
 			if (current[4].compare(next[2]) == 0 || current[4].compare(next[3]) == 0) {
-				//cout << "Forwarding @ instruction: " << PC + 1;
-				bubble = true;
+				cout << "\t" << "Forwarding @ instruction: " << PC + 1 << "\n";
+				//bubble = true;
 			}
 		}
 	}
@@ -325,6 +325,17 @@ int main()
 		else
 			cout << "\t" << "\n" << "Before Input File: " << i + 6 << "\n";
 		print();
+
+
+		// Set up console for post execution results
+		if (i == 0)
+			cout << "\t" << "\n" << "After Input File: " << i + 5 << "\n";
+		else if (i == 1)
+			cout << "\t" << "\n" << "After Input File: " << i + 6 << "\n";
+		else
+			cout << "\t" << "\n" << "After Input File: " << i + 6 << "\n";
+
+
 		// read instructions from file into instruction memory
 		if (i == 0) {
 			ifstream input("input5.txt");
@@ -362,7 +373,6 @@ int main()
 		int count = 1;
 		//While there are instructions to process
 		while (PC < instructionMem.size() - 1) {
-			cout << instructionMem.size();
 			//get the next instruciton
 			currentInstruction = instructionMem[PC];
 			if (PC + 1 < instructionMem.size())
@@ -380,30 +390,24 @@ int main()
 			branch = ALU(decodedInstruction);
 			count++;
 			// if branch is negative, add to current PC to jump back branch number of lines
-			//if (branch < 0) {
-			//	PC = PC + branch;
-				//PC++;
-			//}
-			// if branch is positive, subtract from the current PC to jump forward branch number of lines
-			//else if (branch > 0) {
-			//	PC = PC - branch;
-			//	PC--;
-			//}
-			// if branch == 0, continue to the next instruction
-			//else if (branch == 0) {
+			if (branch < 0) {
+				PC = PC + branch;
+				PC++;
+			}
+			 //if branch is positive, subtract from the current PC to jump forward branch number of lines
+			 else if (branch > 0) {
+				PC = PC - branch;
+				PC--;
+			}
+			//if branch == 0, continue to the next instruction
+			else if (branch == 0) {
 			PC++;
-			//}
+			}
 
 			previousInstruction = currentInstruction;
 			decodedPreviousInstruction = decodeInstruction(previousInstruction);
 		}
 		// print instruction memory, values in the register files, and data memory after simulation 
-		if(i == 0)
-			cout << "\t" << "\n" << "After Input File: " << i + 5 << "\n";
-		else if(i == 1)
-			cout << "\t" << "\n" << "After Input File: " << i + 6 << "\n";
-		else
-			cout << "\t" << "\n" << "After Input File: " << i + 6 << "\n";
 		float CPI = ((float)cycles / (float)instructionMem.size());
 		cout << "\t" << "CPI =  " << cycles << " / " << instructionMem.size() << " = " << fixed << setprecision(2) << CPI << "\n";
 		print();
